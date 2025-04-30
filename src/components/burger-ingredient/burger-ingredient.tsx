@@ -5,10 +5,14 @@ import { BurgerIngredientUI } from '@ui';
 import { TBurgerIngredientProps } from './type';
 
 export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
-  ({ ingredient, count }) => {
+  ({ ingredient, count, handleAddIngredient }) => {
     const location = useLocation();
 
-    const handleAdd = () => {};
+    const handleAdd = () => {
+      if (handleAddIngredient) {
+        handleAddIngredient(ingredient);
+      }
+    };
 
     return (
       <BurgerIngredientUI
