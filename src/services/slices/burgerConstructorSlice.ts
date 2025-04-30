@@ -59,10 +59,15 @@ export const constructorSlice = createSlice({
       action: PayloadAction<{ index: number; newIndex: number }>
     ) => {
       const { index, newIndex } = action.payload;
-      [state.ingredients[index], state.ingredients[index + newIndex]] = [
-        state.ingredients[index + newIndex],
-        state.ingredients[index]
-      ];
+      if (
+        index >= 0 &&
+        index < state.ingredients.length &&
+        newIndex >= 0 &&
+        newIndex < state.ingredients.length
+      ) {
+        const [movedIngredient] = state.ingredients.splice(index, 1);
+        state.ingredients.splice(newIndex, 0, movedIngredient);
+      }
     },
     setOrderModalData: (state, action: PayloadAction<TOrder | null>) => {
       if (!action.payload) {
