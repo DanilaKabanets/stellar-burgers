@@ -29,17 +29,45 @@ describe('Интеграционные тесты для страницы кон
 
   describe('Тестирование работы модального окна', () => {
     it('Проверка закрытия модального окна по клику на крестик', () => {
+      // Проверяем отсутствие модального окна перед кликом
+      cy.get('#modals > div:first-child').should('not.exist');
+
+      // Открываем модальное окно с деталями ингредиента
+      cy.contains('Булки').click({ force: true });
       cy.contains('Краторная булка N-200i').parent().find('img').click();
+
+      // Проверяем, что модальное окно открылось
       cy.contains('Детали ингредиента').should('be.visible');
+
+      // Проверяем, что в модальном окне отображается информация о правильном ингредиенте
+      cy.contains('Краторная булка N-200i').should('be.visible');
+
+      // Закрываем модальное окно по клику на крестик
       cy.get('#modals > div:first-child').find('button').click();
+
+      // Проверяем, что модальное окно закрылось
       cy.contains('Детали ингредиента').should('not.exist');
       cy.get('#modals > div:first-child').should('not.exist');
     });
 
     it('Проверка закрытия модального окна по клику на оверлей', () => {
-      cy.contains('Краторная булка N-200i').parent().find('img').click();
+      // Проверяем отсутствие модального окна перед кликом
+      cy.get('#modals > div:first-child').should('not.exist');
+
+      // Открываем модальное окно с деталями ингредиента
+      cy.contains('Соусы').click({ force: true });
+      cy.contains('Соус фирменный Space Sauce').parent().find('img').click();
+
+      // Проверяем, что модальное окно открылось
       cy.contains('Детали ингредиента').should('be.visible');
+
+      // Проверяем, что в модальном окне отображается информация о правильном ингредиенте
+      cy.contains('Соус фирменный Space Sauce').should('be.visible');
+
+      // Закрываем модальное окно по клику на оверлей
       cy.get('body').click(0, 0);
+
+      // Проверяем, что модальное окно закрылось
       cy.contains('Детали ингредиента').should('not.exist');
       cy.get('#modals > div:first-child').should('not.exist');
     });
@@ -62,11 +90,25 @@ describe('Интеграционные тесты для страницы кон
       cy.contains('Соусы').click({ force: true });
       cy.contains('Соус фирменный Space Sauce').parent().find('button').click();
 
-      // Проверяем, что ингредиенты добавлены в конструктор
-      cy.contains('Краторная булка N-200i (верх)').should('be.visible');
-      cy.contains('Биокотлета из марсианской Магнолии').should('be.visible');
-      cy.contains('Соус фирменный Space Sauce').should('be.visible');
-      cy.contains('Краторная булка N-200i (низ)').should('be.visible');
+      // Проверяем, что ингредиенты добавлены именно в конструктор
+      cy.get('div[class^=constructor-element]').each(($element) => {
+        cy.wrap($element).within(() => {
+          if ($element.text().includes('Краторная булка N-200i (верх)')) {
+            cy.contains('Краторная булка N-200i (верх)').should('be.visible');
+          }
+          if ($element.text().includes('Краторная булка N-200i (низ)')) {
+            cy.contains('Краторная булка N-200i (низ)').should('be.visible');
+          }
+          if ($element.text().includes('Биокотлета из марсианской Магнолии')) {
+            cy.contains('Биокотлета из марсианской Магнолии').should(
+              'be.visible'
+            );
+          }
+          if ($element.text().includes('Соус фирменный Space Sauce')) {
+            cy.contains('Соус фирменный Space Sauce').should('be.visible');
+          }
+        });
+      });
     });
   });
 
@@ -88,7 +130,7 @@ describe('Интеграционные тесты для страницы кон
       });
     });
 
-    it('Проверка создания заказа', () => {
+    it('Проверка создания заказа и очистки конструктора', () => {
       // Добавляем булку
       cy.contains('Булки').click({ force: true });
       cy.contains('Краторная булка N-200i').parent().find('button').click();
@@ -103,6 +145,15 @@ describe('Интеграционные тесты для страницы кон
       // Добавляем соус
       cy.contains('Соусы').click({ force: true });
       cy.contains('Соус фирменный Space Sauce').parent().find('button').click();
+
+      // Проверяем наличие ингредиентов в конструкторе перед оформлением заказа
+      cy.get('div[class^=constructor-element]').should(
+        'have.length.at.least',
+        3
+      );
+      cy.get('div[class^=constructor-element]').each(($element) => {
+        cy.wrap($element).should('be.visible');
+      });
 
       // Нажимаем кнопку оформления заказа
       cy.contains('Оформить заказ').click();
@@ -120,6 +171,12 @@ describe('Интеграционные тесты для страницы кон
       cy.contains('идентификатор заказа', { matchCase: false }).should(
         'not.exist'
       );
+
+      // Проверяем, что конструктор очистился после оформления заказа
+      cy.get('div[class^=constructor-element]').should('not.exist');
+      // Проверяем наличие заглушек для пустого конструктора
+      cy.contains('Выберите булки').should('be.visible');
+      cy.contains('Выберите начинку').should('be.visible');
     });
 
     afterEach(() => {
