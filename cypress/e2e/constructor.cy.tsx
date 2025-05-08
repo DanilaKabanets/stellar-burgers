@@ -37,16 +37,16 @@ describe('Интеграционные тесты для страницы кон
       cy.contains('Краторная булка N-200i').parent().find('img').click();
 
       // Проверяем, что модальное окно открылось
-      cy.contains('Детали ингредиента').should('be.visible');
+      cy.get('#modals').contains('Детали ингредиента').should('be.visible');
 
       // Проверяем, что в модальном окне отображается информация о правильном ингредиенте
-      cy.contains('Краторная булка N-200i').should('be.visible');
+      cy.get('#modals').contains('Краторная булка N-200i').should('be.visible');
 
       // Закрываем модальное окно по клику на крестик
       cy.get('#modals > div:first-child').find('button').click();
 
       // Проверяем, что модальное окно закрылось
-      cy.contains('Детали ингредиента').should('not.exist');
+      cy.get('#modals').should('not.contain', 'Детали ингредиента');
       cy.get('#modals > div:first-child').should('not.exist');
     });
 
@@ -59,16 +59,18 @@ describe('Интеграционные тесты для страницы кон
       cy.contains('Соус фирменный Space Sauce').parent().find('img').click();
 
       // Проверяем, что модальное окно открылось
-      cy.contains('Детали ингредиента').should('be.visible');
+      cy.get('#modals').contains('Детали ингредиента').should('be.visible');
 
       // Проверяем, что в модальном окне отображается информация о правильном ингредиенте
-      cy.contains('Соус фирменный Space Sauce').should('be.visible');
+      cy.get('#modals')
+        .contains('Соус фирменный Space Sauce')
+        .should('be.visible');
 
       // Закрываем модальное окно по клику на оверлей
       cy.get('body').click(0, 0);
 
       // Проверяем, что модальное окно закрылось
-      cy.contains('Детали ингредиента').should('not.exist');
+      cy.get('#modals').should('not.contain', 'Детали ингредиента');
       cy.get('#modals > div:first-child').should('not.exist');
     });
   });
@@ -162,15 +164,13 @@ describe('Интеграционные тесты для страницы кон
       cy.wait('@postOrder');
 
       // Проверяем, что модальное окно с информацией о заказе отображается
-      cy.contains('идентификатор заказа', { matchCase: false }).should(
-        'be.visible'
-      );
+      cy.get('#modals')
+        .contains('идентификатор заказа', { matchCase: false })
+        .should('be.visible');
 
       // Закрываем модальное окно
       cy.get('#modals > div:first-child').find('button').click();
-      cy.contains('идентификатор заказа', { matchCase: false }).should(
-        'not.exist'
-      );
+      cy.get('#modals').should('not.contain', 'идентификатор заказа');
 
       // Проверяем, что конструктор очистился после оформления заказа
       cy.get('div[class^=constructor-element]').should('not.exist');
